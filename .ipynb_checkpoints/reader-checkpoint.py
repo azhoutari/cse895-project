@@ -19,7 +19,7 @@ def to_embeddings(data, device):
     sentence_model = SentenceTransformer(model_name, device=device)
     
     def get_sentence_embedding(text):
-        return sentence_model.encode(prompt, convert_to_tensor=True).clone().detach().to(device)
+        return sentence_model.encode(text, convert_to_tensor=True).clone().detach().to(device)
 
     embeddings = [get_sentence_embedding(text) for text in data]
 
@@ -40,6 +40,10 @@ def get_loader(embeddings, batch_size=32, shuffle=False):
 
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
+def get_sentence_model(device):
+    model_name = "all-MiniLM-L6-v2"  # a small, fast, and effective model
+    sentence_model = SentenceTransformer(model_name, device=device)
 
+    return sentence_model
 
 

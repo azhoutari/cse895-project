@@ -2,11 +2,16 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
 from reader import read_data, to_embeddings, get_loader
 from autoencoder import AutoEncoder
 
-def train(model, loader, save_path="checkpoint.pth", num_epochs=30):
+
+
+def train(model, loader, device, save_path="checkpoint.pth", num_epochs=30):
+    losses = []
+    
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
         
@@ -15,7 +20,7 @@ def train(model, loader, save_path="checkpoint.pth", num_epochs=30):
     for epoch in range(num_epochs):
         running_loss = 0.0
         
-        for batch in train_loader:
+        for batch in loader:
             batch = batch.to(device)
             
             optimizer.zero_grad()
@@ -30,10 +35,14 @@ def train(model, loader, save_path="checkpoint.pth", num_epochs=30):
             running_loss += loss.item() * batch.size(0)
             
         epoch_loss = running_loss / len(loader.dataset)
+
+        losses.append(epoch_loss)
         
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}")
 
     torch.save(model.state_dict(), save_path)
+
+    return losses
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -47,6 +56,10 @@ if __name__ == "__main__":
     input_dim = train_embeddings.shape[1]
     model = AutoEncoder(input_dim=input_dim).to(device)
 
-    train(model, train_loader)
+    losses = train(model, train_loader, device)
+
+    plt.imshow(losses)
+    plt.savefig('training_loss.png')
+    plt.close()
 
     
