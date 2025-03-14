@@ -19,7 +19,7 @@ def to_embeddings(data, device):
     sentence_model = SentenceTransformer(model_name, device=device)
     
     def get_sentence_embedding(text):
-        return torch.tensor(sentence_model.encode(text, convert_to_tensor=True))
+        return sentence_model.encode(prompt, convert_to_tensor=True).clone().detach().to(device)
 
     embeddings = [get_sentence_embedding(text) for text in data]
 
