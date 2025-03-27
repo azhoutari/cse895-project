@@ -3,8 +3,9 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import pandas as pd
 
-from reader import read_data, to_embeddings, get_loader
+from reader import to_embeddings, get_loader
 from autoencoder import AutoEncoder
 
 
@@ -47,7 +48,7 @@ def train(model, loader, device, save_path="checkpoint.pth", num_epochs=30):
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    X_train, X_test = read_data("./advbench/harmful_behaviors.csv")
+    X_train = pd.read_csv("./data/train.csv")['prompt'].tolist()
 
     train_embeddings = to_embeddings(X_train, device)
 
@@ -58,7 +59,10 @@ if __name__ == "__main__":
 
     losses = train(model, train_loader, device)
 
-    plt.imshow(losses)
+    plt.plot(losses)
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training Loss over Epochs')
     plt.savefig('training_loss.png')
     plt.close()
 
