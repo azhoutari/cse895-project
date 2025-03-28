@@ -10,7 +10,7 @@ from autoencoder import AutoEncoder
 
 
 
-def train(model, loader, device, save_path="checkpoint.pth", num_epochs=30):
+def train(model, loader, device, save_path="checkpoint.pth", num_epochs=30, model_name="all-MiniLM-L6-v2", embedding_dim=None):
     losses = []
     
     criterion = nn.MSELoss()
@@ -41,7 +41,16 @@ def train(model, loader, device, save_path="checkpoint.pth", num_epochs=30):
         
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}")
 
+    # Save to original path for backward compatibility
     torch.save(model.state_dict(), save_path)
+    
+    # Save to new dynamic path if embedding_dim is provided
+    if embedding_dim is not None:
+        # Create a clean model name for the file path
+        clean_model_name = model_name.replace("/", "_").replace("-", "_")
+        dynamic_save_path = f"model_{clean_model_name}_AE{embedding_dim}.pth"
+        torch.save(model.state_dict(), dynamic_save_path)
+        print(f"Model also saved to: {dynamic_save_path}")
 
     return losses
 
@@ -57,7 +66,7 @@ if __name__ == "__main__":
     input_dim = train_embeddings.shape[1]
     model = AutoEncoder(input_dim=input_dim).to(device)
 
-    losses = train(model, train_loader, device)
+    losses = train(model, train_loader, device, embedding_dim=input_dim)
 
     plt.plot(losses)
     plt.xlabel('Epochs')

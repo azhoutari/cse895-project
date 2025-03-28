@@ -5,16 +5,24 @@ from sentence_transformers import SentenceTransformer
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-def to_embeddings(data, device):
-    model_name = "all-MiniLM-L6-v2"  # a small, fast, and effective model
+def to_embeddings(data, device, model_name="all-MiniLM-L6-v2"):
+    """
+    Convert a list of text data into embeddings using a sentence transformer model.
+    
+    Args:
+        data (list): List of text data to convert into embeddings
+        device (torch.device): Device to run the model on
+        model_name (str, optional): Name of the sentence transformer model to use. 
+                                  Defaults to "all-MiniLM-L6-v2"
+    
+    Returns:
+        torch.Tensor: Tensor containing the embeddings
+    """
     sentence_model = SentenceTransformer(model_name, device=device)
     
-    def get_sentence_embedding(text):
-        return sentence_model.encode(text, convert_to_tensor=True).clone().detach().to(device)
-
-    embeddings = [get_sentence_embedding(text) for text in data]
-
-    return torch.stack(embeddings)
+    embeddings = sentence_model.encode(data, convert_to_tensor=True, device=device)
+    
+    return embeddings
 
 class EmbeddingDataset(Dataset):
     def __init__(self, embeddings):
@@ -31,10 +39,19 @@ def get_loader(embeddings, batch_size=32, shuffle=False):
 
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
-def get_sentence_model(device):
-    model_name = "all-MiniLM-L6-v2"  # a small, fast, and effective model
+def get_sentence_model(device, model_name="all-MiniLM-L6-v2"):
+    """
+    Get a sentence transformer model instance.
+    
+    Args:
+        device (torch.device): Device to run the model on
+        model_name (str, optional): Name of the sentence transformer model to use. 
+                                  Defaults to "all-MiniLM-L6-v2"
+    
+    Returns:
+        SentenceTransformer: The sentence transformer model instance
+    """
     sentence_model = SentenceTransformer(model_name, device=device)
-
     return sentence_model
 
 def CSVMerger(file_path, column_name):
