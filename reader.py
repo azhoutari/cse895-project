@@ -25,18 +25,18 @@ def to_embeddings(data, device, model_name="all-MiniLM-L6-v2"):
     return embeddings
 
 class EmbeddingDataset(Dataset):
-    def __init__(self, embeddings):
+    def __init__(self, embeddings, model_name="all-MiniLM-L6-v2"):
         self.embeddings = embeddings
+        self.model_name = model_name
 
     def __len__(self):
-        return self.embeddings.shape[0]
+        return len(self.embeddings)
 
     def __getitem__(self, idx):
         return self.embeddings[idx]
 
-def get_loader(embeddings, batch_size=32, shuffle=False):
-    dataset = EmbeddingDataset(embeddings)
-
+def get_loader(embeddings, batch_size=32, shuffle=False, model_name="all-MiniLM-L6-v2"):
+    dataset = EmbeddingDataset(embeddings, model_name)
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
 def get_sentence_model(device, model_name="all-MiniLM-L6-v2"):
