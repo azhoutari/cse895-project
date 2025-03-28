@@ -73,7 +73,7 @@ if __name__ == "__main__":
     X_train = pd.read_csv("./data/train.csv")['prompt'].tolist()
 
     # Set model name once
-    model_name = "all-mpnet-base-v2"
+    model_name = "paraphrase-multilingual-MiniLM-L12-v2"
     train_embeddings = to_embeddings(X_train, device, model_name=model_name)
     train_loader = get_loader(train_embeddings, shuffle=True, model_name=model_name)
 

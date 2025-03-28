@@ -1,0 +1,6 @@
+metric,value
+recall,1.0
+false_negative_rate,0.0
+threshold,0.002
+mean_error,0.0005087694735266268
+std_error,0.00024086247140076011
