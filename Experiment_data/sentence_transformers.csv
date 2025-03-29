@@ -1,0 +1,11 @@
+model_name,embedding_dimension
+all-MiniLM-L6-v1,384
+all-MiniLM-L6-v2,384
+all-mpnet-base-v2,768
+all-MiniLM-L12-v2,384
+all-distilroberta-v1,768
+multi-qa-mpnet-base-dot-v1,768
+paraphrase-multilingual-mpnet-base-v2,768
+all-roberta-large-v1,1024
+paraphrase-albert-small-v2,768
+paraphrase-multilingual-MiniLM-L12-v2,384 
