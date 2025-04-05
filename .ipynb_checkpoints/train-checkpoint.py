@@ -41,29 +41,45 @@ def train(model, loader, device, save_path="checkpoint.pth", num_epochs=30):
         
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}")
 
+    # Save to original path for backward compatibility
     torch.save(model.state_dict(), save_path)
+    
+    # Get embedding dimension from model's input dimension
+    embedding_dim = model.encoder[0].in_features
+    
+    # Get model name from the dataset with fallback
+    model_name = getattr(loader.dataset, 'model_name', "all-MiniLM-L6-v2")
+    clean_model_name = model_name.replace("/", "_").replace("-", "_")
+    
+    # Create dynamic save path using both model name and embedding dimension
+    dynamic_save_path = f"model_{clean_model_name}_AE{embedding_dim}.pth"
+    torch.save(model.state_dict(), dynamic_save_path)
+    print(f"Model also saved to: {dynamic_save_path}")
+    
+    # Save training loss plot with same naming convention
+    plt.plot(losses)
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training Loss over Epochs')
+    plt.savefig(f'training_loss_{clean_model_name}_AE{embedding_dim}.png')
+    plt.close()
 
     return losses
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    # Load and preprocess data
     X_train = pd.read_csv("./data/train.csv")['prompt'].tolist()
 
-    train_embeddings = to_embeddings(X_train, device)
-
-    train_loader = get_loader(train_embeddings, shuffle=True)
+    # Set model name once
+    model_name = "all-MiniLM-L6-v2"
+    train_embeddings = to_embeddings(X_train, device, model_name=model_name)
+    train_loader = get_loader(train_embeddings, shuffle=True, model_name=model_name)
 
     input_dim = train_embeddings.shape[1]
     model = AutoEncoder(input_dim=input_dim).to(device)
 
     losses = train(model, train_loader, device)
-
-    plt.plot(losses)
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.title('Training Loss over Epochs')
-    plt.savefig('training_loss.png')
-    plt.close()
 
     
